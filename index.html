@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#d9480f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Reproductor 20s">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<title>Reproductor 20s</title>
+<style>
+:root{--bg:#f6f5f1;--card:#fff;--tx:#1d1d1b;--mut:#6b6b66;--ac:#d9480f;--bd:#e3e1da;--hi:#fdeee6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#161615;--card:#212120;--tx:#f1efe9;--mut:#9a988f;--ac:#ff8a4c;--bd:#33332f;--hi:#3a2a20}}
+:root[data-theme="dark"]{--bg:#161615;--card:#212120;--tx:#f1efe9;--mut:#9a988f;--ac:#ff8a4c;--bd:#33332f;--hi:#3a2a20}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px system-ui,-apple-system,Segoe UI,sans-serif}
+.app{max-width:960px;margin:0 auto;padding:16px;display:grid;gap:16px;grid-template-columns:1fr}
+@media(min-width:800px){.app{grid-template-columns:1.1fr 1fr}}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px}
+h1{font-size:18px;margin:0 0 4px}
+.sub{color:var(--mut);font-size:13px;margin:0 0 12px}
+.stage{aspect-ratio:16/9;background:#000;border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+video{width:100%;height:100%;display:none;background:#000}
+.ph{color:#bbb;text-align:center;font-size:40px}
+.ph small{display:block;font-size:13px;margin-top:6px}
+.title{margin:12px 0 2px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.folder{color:var(--mut);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar{height:8px;background:var(--bd);border-radius:6px;margin:12px 0 4px;cursor:pointer;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--ac)}
+.times{display:flex;justify-content:space-between;color:var(--mut);font-size:12px}
+.ctl{display:flex;gap:8px;justify-content:center;align-items:center;margin:12px 0;flex-wrap:wrap}
+button,select,input[type=search]{font:inherit;color:var(--tx)}
+.b{border:1px solid var(--bd);background:var(--card);border-radius:10px;padding:10px 14px;cursor:pointer;min-width:44px}
+.b:hover{border-color:var(--ac)}
+.b.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.main{background:var(--ac);color:#fff;border-color:var(--ac);font-size:18px;padding:10px 20px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--mut)}
+.row input[type=range]{accent-color:var(--ac)}
+select{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:6px}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+input[type=search]{flex:1;min-width:140px;background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:10px}
+.list{max-height:56vh;overflow:auto}
+details{border:1px solid var(--bd);border-radius:10px;margin-bottom:8px;overflow:hidden}
+summary{padding:10px 12px;cursor:pointer;font-weight:600;background:var(--bg);display:flex;justify-content:space-between;gap:8px}
+summary span:last-child{color:var(--mut);font-weight:400}
+.t{padding:9px 12px;cursor:pointer;border-top:1px solid var(--bd);display:flex;gap:8px;align-items:center}
+.t:hover{background:var(--hi)}
+.t.cur{background:var(--hi);color:var(--ac);font-weight:600}
+.t span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.empty{color:var(--mut);text-align:center;padding:30px 10px}
+.nav,.mini{display:none}
+.nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--bd);padding:8px 12px calc(8px + env(safe-area-inset-bottom,0px));gap:8px;z-index:5}
+.nav button{flex:1}
+.mini{align-items:center;gap:10px;background:var(--hi);border-radius:10px;padding:8px 10px;margin-bottom:10px}
+.mini span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+button{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+@media(max-width:799px){
+ :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:0}
+ .app{padding:12px 12px 90px}
+ body[data-tab="player"] #listCard{display:none}
+ body[data-tab="list"] #playerCard{display:none}
+ .nav{display:flex}.mini{display:flex}
+ body[data-tab="player"] .mini{display:none}
+ .b{min-height:48px;min-width:48px}
+ .main{min-width:76px;font-size:24px}
+ .ctl{gap:10px}
+ .bar{height:14px;border-radius:8px}
+ .row{justify-content:center}.volw{display:none}
+ .list{max-height:none}
+ .t{padding:14px 12px}summary{padding:14px 12px}
+ .tools .b{flex:1}input[type=search]{flex-basis:100%;order:5;font-size:16px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <section class="card" id="playerCard">
+    <h1>🎧 Reproductor de 20 segundos</h1>
+    <p class="sub">Cada archivo suena solo unos segundos y salta al siguiente.</p>
+    <div class="stage">
+      <video id="m" playsinline></video>
+      <div class="ph" id="ph">♪<small>Abre una carpeta o agrega archivos</small></div>
+    </div>
+    <div class="title" id="ti">Sin pista</div>
+    <div class="folder" id="fo">—</div>
+    <div class="bar" id="bar"><i id="pr"></i></div>
+    <div class="times"><span id="t1">0:00</span><span id="t2">0:20</span></div>
+    <div class="ctl">
+      <button class="b" id="sh" title="Aleatorio">🔀</button>
+      <button class="b" id="pv" title="Anterior">⏮</button>
+      <button class="b main" id="pp" title="Reproducir / pausar">▶</button>
+      <button class="b" id="st" title="Detener">⏹</button>
+      <button class="b" id="nx" title="Siguiente">⏭</button>
+      <button class="b" id="rp" title="Repetir lista">🔁</button>
+    </div>
+    <div class="row">
+      <label>Duración del clip
+        <select id="len"><option>10</option><option selected>20</option><option>30</option><option>60</option></select> s</label>
+      <label>Inicio
+        <select id="from"><option value="0">Desde el principio</option><option value="mid">Desde la mitad</option></select></label>
+      <label class="volw">🔊 <input type="range" id="vol" min="0" max="1" step="0.05" value="0.8"></label>
+    </div>
+  </section>
+
+  <section class="card" id="listCard">
+    <div class="mini"><span id="mt">Sin pista</span><button class="b" id="mp">▶</button><button class="b" id="mn">⏭</button></div>
+    <div class="tools">
+      <button class="b" id="bd">📁 Carpeta</button>
+      <button class="b" id="bf">➕ Archivos</button>
+      <button class="b" id="bc" title="Vaciar lista">🗑</button>
+      <input type="search" id="q" placeholder="Buscar pista o carpeta…">
+    </div>
+    <div class="list" id="list"></div>
+    <input type="file" id="fd" webkitdirectory multiple hidden>
+    <input type="file" id="ff" accept="audio/*,video/*,.mp3,.mp4,.m4a,.aac,.wav,.ogg,.oga,.opus,.flac,.webm,.mkv,.mov,.ogv" multiple hidden>
+  </section>
+</div>
+<div class="nav"><button class="b on" id="n1">🎧 Reproductor</button><button class="b" id="n2">📂 Pistas</button></div>
+<script>
+const $=id=>document.getElementById(id);
+const m=$('m');
+const EXT=/\.(mp3|mp4|m4a|m4v|aac|wav|ogg|oga|ogv|opus|flac|webm|mkv|mov|weba)$/i;
+const VID=/\.(mp4|m4v|webm|mkv|mov|ogv)$/i;
+let batch=0,tracks=[],cur=-1,shuffle=false,repeat=true,clip=20,start=0,playing=false;
+const fmt=s=>Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');
+
+function add(files){
+  const bn=++batch,hr=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  for(const f of files){
+    if(!(EXT.test(f.name)||/^(audio|video)\//.test(f.type)))continue;
+    const p=f.webkitRelativePath;
+    const folder=p?p.split('/').slice(0,-1).join(' / '):'Selección '+bn+' · '+hr;
+    tracks.push({name:f.name,folder,url:URL.createObjectURL(f),video:VID.test(f.name)||f.type.startsWith('video/')});
+  }
+  render();
+  if(cur<0&&tracks.length){play(0);tab('player')}
+}
+function render(){
+  const q=$('q').value.toLowerCase(),L=$('list');
+  const g={};
+  tracks.forEach((t,i)=>{if(!q||t.name.toLowerCase().includes(q)||t.folder.toLowerCase().includes(q))(g[t.folder]=g[t.folder]||[]).push(i)});
+  const keys=Object.keys(g);
+  if(!keys.length){L.innerHTML='<div class="empty">'+(tracks.length?'Sin resultados':'Aún no hay pistas.<br>Usa “Abrir carpeta” para cargar tu música.')+'</div>';return}
+  L.innerHTML='';
+  keys.forEach(k=>{
+    const d=document.createElement('details');d.open=!!q||keys.length<=3;
+    d.innerHTML='<summary><span>📁 '+esc(k)+'</span><span>'+g[k].length+'</span></summary>';
+    g[k].forEach(i=>{
+      const r=document.createElement('div');r.className='t'+(i===cur?' cur':'');
+      r.innerHTML='<span>'+(tracks[i].video?'🎬':'🎵')+'</span><span>'+esc(tracks[i].name)+'</span>';
+      r.onclick=()=>play(i);d.appendChild(r);
+    });
+    L.appendChild(d);
+  });
+}
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function play(i){
+  if(i<0||i>=tracks.length)return;
+  cur=i;const t=tracks[i];
+  m.src=t.url;m.volume=+$('vol').value;
+  m.style.display=t.video?'block':'none';
+  $('ph').style.display=t.video?'none':'block';
+  $('ph').innerHTML='♪<small>Solo audio</small>';
+  $('ti').textContent=$('mt').textContent=t.name;
+  if('mediaSession' in navigator){navigator.mediaSession.metadata=new MediaMetadata({title:t.name,artist:t.folder,album:'Reproductor 20s'});
+    const h=navigator.mediaSession.setActionHandler.bind(navigator.mediaSession);
+    h('play',()=>$('pp').click());h('pause',()=>$('pp').click());h('stop',stop);h('nexttrack',()=>next(false));h('previoustrack',prev)}
+  $('fo').textContent='📁 '+t.folder;
+  m.onloadedmetadata=()=>{
+    clip=+$('len').value;
+    start=$('from').value==='mid'&&m.duration>clip*2?m.duration/2:0;
+    m.currentTime=start;
+    $('t2').textContent=fmt(Math.min(clip,m.duration-start));
+  };
+  m.play().then(()=>setP(true)).catch(()=>setP(false));
+  render();
+}
+function setP(v){playing=v;$('pp').textContent=$('mp').textContent=v?'⏸':'▶';if('mediaSession' in navigator)navigator.mediaSession.playbackState=v?'playing':'paused'}
+function next(auto){
+  if(!tracks.length)return;
+  let n;
+  if(shuffle)n=Math.floor(Math.random()*tracks.length);
+  else{n=cur+1;if(n>=tracks.length){if(repeat||!auto)n=0;else{stop();return}}}
+  play(n);
+}
+function prev(){if(!tracks.length)return;play(m.currentTime-start>3?cur:(cur-1+tracks.length)%tracks.length)}
+function stop(){m.pause();m.currentTime=start;setP(false);$('pr').style.width='0';$('t1').textContent='0:00'}
+
+m.ontimeupdate=()=>{
+  const e=m.currentTime-start,lim=Math.min(clip,(m.duration||clip)-start);
+  $('pr').style.width=Math.min(100,e/lim*100)+'%';$('t1').textContent=fmt(Math.max(0,e));
+  if(e>=lim-0.05&&playing)next(true);
+};
+m.onended=()=>next(true);
+$('pp').onclick=()=>{if(cur<0){if(tracks.length)play(0);return}
+  if(m.paused){m.play();setP(true)}else{m.pause();setP(false)}};
+$('st').onclick=stop;
+$('nx').onclick=()=>next(false);
+$('pv').onclick=prev;
+$('sh').onclick=e=>{shuffle=!shuffle;e.currentTarget.classList.toggle('on',shuffle)};
+$('rp').onclick=e=>{repeat=!repeat;e.currentTarget.classList.toggle('on',repeat)};
+$('rp').classList.add('on');
+$('vol').oninput=e=>m.volume=+e.target.value;
+$('len').onchange=()=>{clip=+$('len').value;if(cur>=0)play(cur)};
+$('from').onchange=()=>{if(cur>=0)play(cur)};
+$('bar').onclick=e=>{const r=e.currentTarget.getBoundingClientRect();
+  const lim=Math.min(clip,(m.duration||clip)-start);m.currentTime=start+(e.clientX-r.left)/r.width*lim};
+$('bd').onclick=()=>$('fd').click();
+$('bf').onclick=()=>$('ff').click();
+$('bc').onclick=()=>{stop();m.removeAttribute('src');tracks.forEach(t=>URL.revokeObjectURL(t.url));tracks=[];cur=-1;
+  $('ti').textContent='Sin pista';$('fo').textContent='—';$('ph').style.display='block';$('ph').innerHTML='♪<small>Abre una carpeta o agrega archivos</small>';m.style.display='none';render()};
+$('fd').onchange=e=>{add([...e.target.files]);e.target.value=''};
+$('ff').onchange=e=>{add([...e.target.files]);e.target.value=''};
+$('q').oninput=render;
+function tab(t){document.body.dataset.tab=t;$('n1').classList.toggle('on',t==='player');$('n2').classList.toggle('on',t==='list')}
+$('n1').onclick=()=>tab('player');$('n2').onclick=()=>tab('list');
+$('mp').onclick=()=>$('pp').click();$('mn').onclick=()=>next(false);
+tab('player');
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;
+  if(e.code==='Space'){e.preventDefault();$('pp').click()}
+  if(e.code==='ArrowRight')next(false);
+  if(e.code==='ArrowLeft')prev();
+});
+['dragover','drop'].forEach(ev=>document.addEventListener(ev,e=>{e.preventDefault();if(ev==='drop')add([...e.dataTransfer.files])}));
+render();
+</script>
+<script>
+if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
+</script>
+</body>
+</html>
