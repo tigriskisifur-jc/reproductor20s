@@ -1,6 +1,6 @@
 // Service worker: guarda la app en el dispositivo para que abra sin internet.
 // Al publicar cambios, sube el número de versión para forzar la actualización.
-const VERSION = 'v1';
+const VERSION = 'v2';
 const CACHE = 'reproductor-20s-' + VERSION;
 const FILES = ['./', 'index.html', 'manifest.webmanifest',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/maskable-512.png', 'icons/apple-touch-icon.png'];

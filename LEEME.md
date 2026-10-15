@@ -17,4 +17,11 @@ Súbelos TODOS a la raíz de tu repositorio (sin meterlos dentro de otra carpeta
 Abre la app una vez con internet; desde ahí funciona sin conexión.
 
 ## Actualizar
-Si cambias index.html, edita sw.js y cambia VERSION = 'v1' por 'v2' (y así sucesivamente).
+Si cambias index.html, edita sw.js y cambia VERSION = 'v2' por 'v3' (y así sucesivamente).
+
+## Novedades v2
+- Biblioteca guardada en el dispositivo (no hace falta volver a cargar los archivos).
+- Listas de reproducción (botón ＋ junto a cada pista, 📥 para una carpeta completa).
+- Clips de hasta 120 s y crossfade de 3, 5 u 8 s.
+- Botón "Instalar" dentro de la app.
+Para que tu teléfono reciba la versión nueva: sube los archivos, abre la app con internet y ciérrala y ábrela de nuevo.
